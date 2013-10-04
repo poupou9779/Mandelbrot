@@ -2,25 +2,23 @@
 #include <float.h>
 #include <math.h>
 #include <time.h>
-#include "cplx.h"
 
-#define ZOOM
+//#define ZOOM
 
-#define WIDTH       200
-#define HEIGHT      200
+#define WIDTH       500
+#define HEIGHT      500
 #define MANDELBROT_EVOLUTION (double)(4.)
 #ifdef ZOOM
-double  MANDELBROT_XMIN = -2.1,
-        MANDELBROT_XMAX = 0.6,
-        MANDELBROT_YMIN = -1.35,
-        MANDELBROT_YMAX = 1.35,
+double  MANDELBROT_XMIN,
+        MANDELBROT_XMAX,
+        MANDELBROT_YMIN,
+        MANDELBROT_YMAX,
         MANDELBROT_PREC = 0.4;
 #else
-//-0.104278125 - -0.103496875 - 0.958084375 - 0.958865625
-double  MANDELBROT_XMIN/* = -0.104278125*/,
-        MANDELBROT_XMAX/* = -0.103496875*/,
-        MANDELBROT_YMIN/* = 0.958084375*/,
-        MANDELBROT_YMAX/* = 0.958865625*/;
+double  MANDELBROT_XMIN,
+        MANDELBROT_XMA,
+        MANDELBROT_YMIN,
+        MANDELBROT_YMAX;
 #endif // ZOOM
 Uint32  black   = 0x00000000,
         white   = 0x00FFFFFF,
@@ -29,13 +27,6 @@ Uint32  black   = 0x00000000,
         blue    = 0x000000FF,
         colors[100],
         iterations = 300;
-
-Complexe Cplx_carre(Complexe);
-
-inline Complexe Cplx_carre(Complexe z) {
-    Complexe ret = {z.a*z.a - z.b*z.b, 2*z.a*z.b};
-    return ret;
-}
 
 void putPixel(SDL_Surface * surface, Uint16 x, Uint16 y, Uint32 color) {
     Uint8 bpp = surface->format->BytesPerPixel;
@@ -49,12 +40,19 @@ void DessinerMandelbrot(SDL_Surface *srf) {
         if(x % (WIDTH/100) == 0)
         printf("\r%d %%", x/(WIDTH/100));
         for(int y = 0; y < HEIGHT; ++y) {
-            Complexe    c = {x*(MANDELBROT_XMAX - MANDELBROT_XMIN)/WIDTH + MANDELBROT_XMIN,
-                             y*(MANDELBROT_YMAX - MANDELBROT_YMIN)/HEIGHT + MANDELBROT_YMIN},
-                        z = {0, 0};
+            double  ca = x*(MANDELBROT_XMAX - MANDELBROT_XMIN)/WIDTH + MANDELBROT_XMIN,
+                    cb = y*(MANDELBROT_YMAX - MANDELBROT_YMIN)/HEIGHT + MANDELBROT_YMIN,
+                    za = 0,
+                    zb = 0;
+            double tmpx, tmpy;
             Uint32 i;
-            for(i = 0; (Cplx_module(z) - 2.0) < DBL_EPSILON && i < iterations; ++i)
-                z = Cplx_addition(Cplx_carre(z), c);
+            for(i = 0; (za*za + zb*zb - 4.) < DBL_EPSILON && i < iterations; ++i) {
+                tmpx = za; tmpy = zb;
+                za = tmpx*tmpx - tmpy*tmpy;
+                zb = 2*tmpx*tmpy;
+                za += ca;
+                zb += cb;
+            }
             if(i == iterations)
                 putPixel(srf, x, y, black);
             else
@@ -74,9 +72,6 @@ freopen("CON", "w", stderr);
     SDL_Event ev;
     int loop = 1;
 #endif
-    FILE *f = fopen("results.txt", "r");
-    fscanf(f, "%lf | %lf | %lf | %lf | ", &MANDELBROT_XMIN, &MANDELBROT_XMAX, &MANDELBROT_YMIN, &MANDELBROT_YMAX);
-    fclose(f);
     if(SDL_Init(SDL_INIT_VIDEO) < 0) return EXIT_FAILURE;
     atexit(SDL_Quit);
     SDL_WM_SetCaption("Mandelbrot", NULL);
@@ -91,6 +86,10 @@ freopen("CON", "w", stderr);
     }
     SDL_FillRect(ecran, NULL, black);
 #ifdef ZOOM
+    MANDELBROT_YMAX = +1.2;
+    MANDELBROT_YMIN = -1.2;
+    MANDELBROT_XMIN = -2.1;
+    MANDELBROT_XMAX = -2.1 + WIDTH*2.4/HEIGHT;
     while(loop == 1) {
         if(SDL_MUSTLOCK(ecran))
             SDL_LockSurface(ecran);
@@ -122,11 +121,11 @@ freopen("CON", "w", stderr);
         }
     }
     SDL_SaveBMP(ecran, "Mandelbrot.bmp");
-    /*FILE **/f = fopen("results.txt", "w+");
+    FILE *f = fopen("results.txt", "w+");
     fprintf(f, "%.10g | %.10g | %.10g | %.10g | ", MANDELBROT_XMIN, MANDELBROT_XMAX, MANDELBROT_YMIN, MANDELBROT_YMAX);
     fclose(f);
 #else
-    clock_t t3 = clock(); 
+    clock_t t3 = clock();
     FILE *f = fopen("results.txt", "r");
     fscanf(f, "%lf | %lf | %lf | %lf | ", &MANDELBROT_XMIN, &MANDELBROT_XMAX, &MANDELBROT_YMIN, &MANDELBROT_YMAX);
     fclose(f);

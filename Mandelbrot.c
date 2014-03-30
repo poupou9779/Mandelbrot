@@ -1,4 +1,4 @@
-#include <SDL.h>
+#include <SDL/SDL.h>
 #include <float.h>
 #include <math.h>
 #include <time.h>
@@ -16,7 +16,7 @@ double  MANDELBROT_XMIN,
         MANDELBROT_PREC = 0.4;
 #else
 double  MANDELBROT_XMIN,
-        MANDELBROT_XMA,
+        MANDELBROT_XMAX,
         MANDELBROT_YMIN,
         MANDELBROT_YMAX;
 #endif // ZOOM
@@ -26,7 +26,7 @@ Uint32  black   = 0x00000000,
         green   = 0x0000FF00,
         blue    = 0x000000FF,
         colors[100],
-        iterations = 300;
+        iterations = 100;
 
 void putPixel(SDL_Surface * surface, Uint16 x, Uint16 y, Uint32 color) {
     Uint8 bpp = surface->format->BytesPerPixel;

@@ -38,7 +38,7 @@ Uint32  black   = 0x00000000,
         colors[MAX_COLORS];
      
 
-static inline void putPixel(SDL_Surface * form, Uint16 x, Uint16 y, Uint32 color) {
+void putPixel(SDL_Surface * form, Uint16 x, Uint16 y, Uint32 color) {
     Uint8 bpp = form->format->BytesPerPixel;
     Uint8 * p = ((Uint8 *)form->pixels) + y * form->pitch + x * bpp;
     if(bpp == 4)

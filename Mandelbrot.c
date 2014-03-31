@@ -39,10 +39,10 @@ Uint32  black   = 0x00000000,
      
 
 static inline void putPixel(SDL_Surface * form, Uint16 x, Uint16 y, Uint32 color) {
-    Uint8 bpp = form->format->BytesPerPixel;
-    Uint8 * p = ((Uint8 *)form->pixels) + y * form->pitch + x * bpp;
-    if(bpp == 4)
-        *(Uint32 *)p = color;
+    const Uint8 bpp = form->format->BytesPerPixel;
+    register Uint32 * p = ((Uint8 *)form->pixels) + y * form->pitch + x * bpp;
+    //if(bpp == 4)
+    *p = color;
 }
 
 void lockAsNeeded(SDL_Surface * form) {
@@ -80,7 +80,7 @@ void drawMandelbrotSet(SDL_Surface *form, int iterations) {
             for(i = 0; (za*za + zb*zb - MANDELBROT_EVOLUTION) < DBL_EPSILON && i < iterations; ++i) {
                 tmpx = za; tmpy = zb;
                 za = tmpx*tmpx - tmpy*tmpy;
-                zb = 2*tmpx*tmpy;
+                zb = tmpx*tmpy*2;
                 za += ca;
                 zb += cb;
             }

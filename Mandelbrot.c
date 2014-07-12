@@ -36,7 +36,7 @@ Uint32  black   = 0x00000000,
         green   = 0x0000FF00, //Unused
         blue    = 0x000000FF,
         colors[MAX_COLORS];
-     
+
 
 static inline void putPixel(SDL_Surface * form, Uint16 x, Uint16 y, Uint32 color) {
     const Uint8 bpp = form->format->BytesPerPixel;
@@ -76,7 +76,7 @@ void drawMandelbrotSet(SDL_Surface *form, int iterations) {
                     za = 0,
                     zb = 0;
             register double tmpx, tmpy;
-	    register Uint32 i;
+            register Uint32 i;
             for(i = 0; (za*za + zb*zb - MANDELBROT_EVOLUTION) < DBL_EPSILON && i < iterations; ++i) {
                 tmpx = za; tmpy = zb;
                 za = tmpx*tmpx - tmpy*tmpy;
@@ -87,21 +87,21 @@ void drawMandelbrotSet(SDL_Surface *form, int iterations) {
             if(i == iterations)
                 putPixel(form, x, y, black);
             else {
-		// Get the color by index
+            // Get the color by index
                 putPixel(form, x, y, colors[MAX_COLORS*i/iterations]);
-	    }
+            }
         }
     }
     printf("\r100 %%\n"); // FIXME: ??!
 }
 
-SDL_Surface* initGraphics() {
-    
+SDL_Surface* initGraphics(void) {
+
     if(SDL_Init(SDL_INIT_VIDEO) < 0) return NULL;
     atexit(SDL_Quit);
     SDL_WM_SetCaption(WINDOWS_CAPTION, NULL);
     SDL_Surface *form = SDL_SetVideoMode(WIDTH, HEIGHT, BPP, SDL_DOUBLEBUF|SDL_HWSURFACE);
- 
+
     return form;
 }
 
@@ -115,32 +115,32 @@ void initMandelbrotSetBounds(void) {
     MANDELBROT_XMIN = -2.1;
     MANDELBROT_XMAX = -2.1 + WIDTH*2.4/HEIGHT;
     MANDELBROT_PREC = 0.4;
-}    
+}
 
 int main(int argc, char **argv) {
 
     redirectStdio();
-    
+
     clock_t renderStart, renderDuration;
     SDL_Surface* screen;
-    
+
 #if ZOOM_ENABLED == 1
     double tmpx1, tmpx2, tmpy1, tmpy2;
     SDL_Event ev;
     int done = 0;
 #endif
-  
+
     screen = initGraphics();
     if(screen == NULL) return EXIT_FAILURE;
 
     buildColorTable(screen, colors);
     clear(screen, black);
-   
+
 #if ZOOM_ENABLED == 1
     initMandelbrotSetBounds();
 
     while(!done) {
-    
+
 	lockAsNeeded(screen);
         printf("\tXMIN : %.10g\n\tXMAX : %.10g\n\tYMIN : %.10g\n\tYMAX : %.10g\n", \
 	     MANDELBROT_XMIN, MANDELBROT_XMAX, MANDELBROT_YMIN, MANDELBROT_YMAX);
